@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    #output-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 18px;
+        text-align: left;
+    }
+    #output-table th, #output-table td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+    #output-table th {
+        background-color: #f4f4f4;
+    }
+    #output-table tr:hover {
+        background-color: #f1f1f1;
+    }
+    .input-field {
+        margin: 10px;
+    }
+    .input-button {
+        padding: 10px;
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        cursor: pointer;
+    }
+</style>
+<title>Data Management Webpage</title>
+</head>
+<body>
+
+<button onclick="displayOutputTable()">Display Formatted Data</button>
+
+<!-- Form to add new data -->
+<div>
+    <input class="input-field" type="text" id="date" placeholder="Date">
+    <input class="input-field" type="text" id="location" placeholder="Location">
+    <input class="input-field" type="text" id="amount" placeholder="Amount">
+    <input class="input-field" type="text" id="status" placeholder="Status">
+    <button class="input-button" onclick="addData()">Add Data</button>
+</div>
+
+<!-- Section to import raw data -->
+<div>
+    <textarea id="raw-data-input" placeholder="Paste your raw data here"></textarea>
+    <button class="input-button" onclick="importRawData()">Import Raw Data</button>
+</div>
+
+<!-- The table to display the formatted data -->
+<table id="output-table" border="1">
+    <tr>
+        <th>Date</th>
+        <th>Location</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+</table>
+
+<script>
+    // Your existing script here...
+</script>
+
+</body>
+</html>
