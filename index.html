@@ -12,6 +12,7 @@
     .input-field {margin: 10px;}
     .input-button, .next-month-button {padding: 10px; background-color: #4CAF50; border: none; color: white; cursor: pointer;}
     .next-month-button {background-color: #008CBA;}
+    .sum-cell {position: fixed; top: 10px; right: 10px; padding: 10px; background-color: #f4f4f4; border: 1px solid #ccc; font-size: 18px;}
 </style>
 <title>Data Management Webpage</title>
 </head>
@@ -25,8 +26,11 @@
     <button class="input-button" onclick="addData()">Add Data</button>
 </div>
 
+<div class="sum-cell" id="sum-cell">Sum: 0</div>
+
 <table id="output-table" border="1">
     <tr>
+        <th>Select</th>
         <th>Date</th>
         <th>Location</th>
         <th>Amount</th>
@@ -39,62 +43,111 @@
 
 <script>
 let data = JSON.parse(localStorage.getItem('data')) || [
+    { date: "2023-09-02", location: "Affirm", amount: 22.60, status: "*" },
+    // ... (Add all your data here)
 ];
 
-    function displayOutputTable() {
-        const table = document.getElementById('output-table');
-        table.innerHTML = `<tr><th>Date</th><th>Location</th><th>Amount</th><th>Status</th><th>Actions</th></tr>`;
-        data.forEach((item, index) => {
-            const row = table.insertRow();
-            row.insertCell(0).textContent = item.date;
-            row.insertCell(1).textContent = item.location;
-            row.insertCell(2).textContent = item.amount;
-            row.insertCell(3).textContent = item.status;
-            const statusButton = document.createElement('button');
-            statusButton.textContent = 'Toggle Status';
-            statusButton.onclick = () => toggleStatus(index);
-            row.insertCell(4).appendChild(statusButton);
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.onclick = () => deleteDataRow(index);
-            row.insertCell(4).appendChild(deleteButton);
-        });
-    }
+function displayOutputTable() {
+    const table = document.getElementById('output-table');
+    table.innerHTML = `<tr><th>Select</th><th>Date</th><th>Location</th><th>Amount</th><th>Status</th><th>Actions</th></tr>`;
+    data.forEach((item, index) => {
+        const row = table.insertRow();
+        
+        const selectCheckbox = document.createElement('input');
+        selectCheckbox.type = 'checkbox';
+        selectCheckbox.onchange = () => updateSum();
+        row.insertCell(0).appendChild(selectCheckbox);
 
-    function addData() {
-        const date = document.getElementById('date').value;
-        const location = document.getElementById('location').value;
-        const amount = document.getElementById('amount').value;
-        const status = document.getElementById('status').value;
-        data.push({ date, location, amount, status });
-        saveData();
-    }
+        const dateCell = document.createElement('td');
+        dateCell.contentEditable = 'true';
+        dateCell.textContent = item.date;
+        dateCell.onblur = () => updateDate(index, dateCell.textContent);
+        row.insertCell(1).appendChild(dateCell);
 
-    function deleteDataRow(index) {
-        data.splice(index, 1);
-        saveData();
-    }
+        row.insertCell(2).textContent = item.location;
 
-    function toggleStatus(index) {
-        data[index].status = data[index].status === 'Completed' ? 'Pending' : 'Completed';
-        saveData();
-    }
+        const amountCell = document.createElement('td');
+        amountCell.contentEditable = 'true';
+        amountCell.textContent = item.amount;
+        amountCell.onblur = () => updateAmount(index, amountCell.textContent);
+        row.insertCell(3).appendChild(amountCell);
 
-    function saveData() {
-        localStorage.setItem('data', JSON.stringify(data));
-        displayOutputTable();
-    }
+        const statusCell = document.createElement('td');
+        statusCell.contentEditable = 'true';
+        statusCell.textContent = item.status;
+        statusCell.onblur = () => updateStatus(index, statusCell.textContent);
+        row.insertCell(4).appendChild(statusCell);
 
-    function nextMonth() {
-        data = data.map(item => {
-            const date = new Date(item.date);
-            date.setMonth(date.getMonth() + 1);
-            return { ...item, date: date.toLocaleDateString() };
-        });
-        saveData();
-    }
+        const statusButton = document.createElement('button');
+        statusButton.textContent = 'Toggle Status';
+        statusButton.onclick = () => toggleStatus(index);
+        row.insertCell(5).appendChild(statusButton);
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteDataRow(index);
+        row.insertCell(5).appendChild(deleteButton);
+    });
+}
 
+function addData() {
+    const date = document.getElementById('date').value;
+    const location = document.getElementById('location').value;
+    const amount = document.getElementById('amount').value;
+    const status = document.getElementById('status').value;
+    data.push({ date, location, amount, status });
+    data.sort((a, b) => new Date(a.date) - new Date(b.date));
+    saveData();
+}
+
+function deleteDataRow(index) {
+    data.splice(index, 1);
+    saveData();
+}
+
+function toggleStatus(index) {
+    data[index].status = data[index].status === '*' ? 'Pending' : '*';
+    saveData();
+}
+
+function updateDate(index, newDate) {
+    data[index].date = newDate;
+    saveData();
+}
+
+function updateAmount(index, newAmount) {
+    data[index].amount = newAmount;
+    saveData();
+}
+
+function updateStatus(index, newStatus) {
+    data[index].status = newStatus;
+    saveData();
+}
+
+function saveData() {
+    localStorage.setItem('data', JSON.stringify(data));
     displayOutputTable();
+}
+
+function nextMonth() {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    document.getElementById('date').value = nextMonth.toISOString().split('T')[0];
+}
+
+function updateSum() {
+    const checkboxes = document.querySelectorAll('#output-table input[type="checkbox"]');
+    let sum = 0;
+    checkboxes.forEach((checkbox, index) => {
+        if (checkbox.checked) {
+            sum += parseFloat(data[index].amount) || 0;
+        }
+    });
+    document.getElementById('sum-cell').innerText = 'Sum: ' + sum;
+}
+
+displayOutputTable();
 </script>
 
 </body>
